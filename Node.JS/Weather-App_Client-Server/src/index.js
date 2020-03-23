@@ -2,31 +2,31 @@ const express = require("express");
 const path = require("path");
 const hbs=require('hbs');
 const app = express();
-const port = 3000;
+const port = 5000;
 
 //Paths for express config
 const publicDirectory = path.join(__dirname, "../public/");
 const partialsPath=path.join(__dirname,'../views/partials');
+const viewsPath=path.join(__dirname,'../views')
 
 //Handle bars setting
 app.set('view engine', 'hbs');
 hbs.registerPartials(partialsPath);
-
+app.set('views',viewsPath);
 //Static directory set up
 app.use(express.static(publicDirectory));
 
 
 app.get('', (req, res) => {
   res.render('index',{
-    'title':'Weather App',
+    'title':'Weather',
     'name':'Yash TheRedDevil'
   });
 });
 
-
-
 app.get('/help', (req, res) => {
   res.render('help',{
+    'title':'Help',
     'helpText':'This is Help page',
     'name':'Yash TheRedDevil'
   });
@@ -34,21 +34,24 @@ app.get('/help', (req, res) => {
 
 app.get('/about', (req, res) => {
   res.render('about',{
-    'title':'Weather App: About',
+    'title':'About',
     'name':'Yash TheRedDevil'
   });
 });
 
 app.get("/weather", (req, res) => {
   res.send({
-    'Name':'Yash',
+    'title':'Weather',
+    'name':'Yash TheRedDevil',
     'Team':'RedDevil'
   });
 });
 
 app.get("*", (req, res) => {
   res.render('404',{
-    'errorMessage':'Page Not Found'
+    'title':'404',
+    'name':'Yash TheRedDevil',
+    'errorMessage':'Page Not Found'    
   });
 });
 
