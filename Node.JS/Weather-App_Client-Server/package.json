@@ -2,7 +2,7 @@
   "name": "Weather-App_Client-Server",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "node src/index.js"
   },

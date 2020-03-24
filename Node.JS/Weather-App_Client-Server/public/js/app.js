@@ -5,7 +5,7 @@ const messageTwo=document.querySelector("#message2");
 const messageThree=document.querySelector("#message3");
 const messageFour=document.querySelector("#message4");
 // const port=5000;
-const port=process.env.Port || 5000;
+//const port=process.env.PORT || 3000;
 weatherForm.addEventListener("submit", e => {
   e.preventDefault();
   
