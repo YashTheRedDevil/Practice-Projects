@@ -1,6 +1,9 @@
 const express = require("express");
 const path = require("path");
 const hbs=require('hbs');
+const geocode=require('./utils/geocode')
+const forecast=require('./utils/forecast');
+
 const app = express();
 const port = 5000;
 
@@ -40,12 +43,34 @@ app.get('/about', (req, res) => {
 });
 
 app.get("/weather", (req, res) => {
-  res.send({
-    'title':'Weather',
-    'name':'Yash TheRedDevil',
-    'Team':'RedDevil'
-  });
+  if(!req.query.address)
+  {
+    return res.send({
+      'error':'Address is not specified. Please provide an Address'
+    })
+  }
+
+  geocode(req.query.address, (error, {latitude,longitude,location}={}) => {
+    if (error) {
+      return res.send({
+        'error':error
+      });
+    } 
+    forecast({latitude,longitude,location}, (error, forecastdata) => {
+      if (error) {
+        return res.send({
+          'error':error
+        });
+      }
+      return res.send({
+        'location':location,
+      'forecast':forecastdata
+      });
+    });
+  });    
 });
+
+
 
 app.get("*", (req, res) => {
   res.render('404',{
