@@ -2,12 +2,29 @@ const express = require("express");
 require("./db/mongoose");
 const userRouter=require('./routers/user');
 const taskRouter=require('./routers/task');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+//
+//Without middleware: new request ->run route handler
+//
+//With middleware:    new request -> run some code -> run route handler
+//
+
+app.use((req,res,next)=>{
+    //console.log(req.method,req.path);
+    next();
+});
+
 
 app.use(express.json());
 app.use(userRouter);
 app.use(taskRouter);
+
+
+
+
 
 app.listen(PORT, () => {
   console.log("Server is listening on " + PORT);

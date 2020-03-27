@@ -7,9 +7,11 @@ router.post("/users", async (req, res) => {
   const user = new User(req.body);
 
   //Using async await
-  try {
+  try {    
     await user.save();
-    res.status(201).send(user);
+    const token=await user.generateAuthToken();
+    //console.log(token,user);
+    res.status(201).send({user,token});
   } catch (error) {
     res.status(400).send(error);
   }
@@ -22,6 +24,17 @@ router.post("/users", async (req, res) => {
   //     console.log(error);
   //     res.status(400).send(error);
   // });
+});
+
+
+router.post('/users/login',async(req,res)=>{
+  try {
+    const user=await User.findByCredentials(req.body.Email,req.body.Password);
+    const token=await user.generateAuthToken();
+    res.status(200).send({user,token});
+  } catch (error) {
+      res.status(400).send();
+  }
 });
 
 router.get("/users", async (req, res) => {
@@ -69,7 +82,7 @@ router.get("/users/:id", async (req, res) => {
 
 router.patch("/users/:id", async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["name", "age", "email", "password"];
+  const allowedUpdates = ["Name", "Age", "Email", "Password"];
   const isValidOperation = updates.every(update => {
     return allowedUpdates.includes(update);
   });
@@ -80,10 +93,20 @@ router.patch("/users/:id", async (req, res) => {
 
   const _id = req.params.id;
   try {
-    const user = await User.findByIdAndUpdate(_id, req.body, {
-      new: true,
-      runValidators: true
+
+    const user=await User.findById(_id);
+
+    updates.forEach((update)=>{
+      user[update]=req.body[update];
     });
+
+    await user.save();
+    // const user = await User.findByIdAndUpdate(_id, req.body, {
+    //   new: true,
+    //   runValidators: true
+    // });
+
+
     if (!user) {
       return res.status(404).send(user);
     }
