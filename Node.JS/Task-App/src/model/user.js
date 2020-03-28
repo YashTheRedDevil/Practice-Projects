@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
-
+const Task=require('./task');
 const userSchema = mongoose.Schema({
   Name: {
     type: String,
@@ -49,7 +49,38 @@ const userSchema = mongoose.Schema({
   }]
 });
 
+
+userSchema.virtual('Tasks',{
+    ref:'Task',
+    localField:'_id',
+    foreignField:'Owner'
+});
+
 //methods method are accessible on instance aka instance methods.
+
+userSchema.methods.toJSON= function(){
+    const user=this;
+    const userObject=user.toObject();
+    
+    delete userObject.Password;
+    delete userObject.Tokens;
+    
+    return userObject;
+}
+
+//OR
+
+// userSchema.methods.getPublicProfile= function(){
+//     const user=this;
+//     const userObject=user.toObject();
+//     console.log(userObject);
+//     delete userObject.Password;
+//     delete userObject.Tokens;
+//     console.log(userObject); 
+//     return userObject;
+// }
+
+
 userSchema.methods.generateAuthToken=async function(){
     const user=this;
     const token=jwt.sign({_id:user._id.toString()},'thisismanchesterunited');
@@ -84,6 +115,13 @@ userSchema.pre('save',async function(next){
     }
     next();
 });
+
+//Delete user task when user is removed
+userSchema.pre('remove',async function(next){
+    const user=this;
+    await Task.deleteMany({Owner:user._id});
+    next();
+})
 
 const User = mongoose.model("User", userSchema);
 
