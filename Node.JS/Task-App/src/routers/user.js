@@ -3,7 +3,7 @@ const multer=require('multer');
 const sharp=require('sharp');
 const User=require('../model/user');
 const auth=require('../middleware/authentication')
-
+const {sendWelcomeMail,sendFeedbackMail}=require('../emails/account')
 const router = express.Router();
 
 const upload=multer({
@@ -24,6 +24,7 @@ router.post("/users", async (req, res) => {
   //Using async await
   try {    
     await user.save();
+    sendWelcomeMail(user.Email,user.Name);
     const token=await user.generateAuthToken();
     //console.log(token,user);
     res.status(201).send({user,Token:token});
@@ -107,13 +108,8 @@ router.patch("/users/me",auth, async (req, res) => {
 router.delete("/users/me",auth, async (req, res) => {  
 
   try {
-    // const user = await User.findByIdAndDelete(req.user._id);
-    // if (!user) {
-    //   return res.status(404).send(user);
-    // }
-    
-    //OR
-    await req.user.remove()
+    await req.user.remove();
+    sendFeedbackMail(req.user.Email,req.user.Name);
     res.status(200).send(req.user);
   } catch (error) {
     res.status(400).send(error);
